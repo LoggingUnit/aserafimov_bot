@@ -4,7 +4,6 @@ const rpn = require('request-promise-native');
 const botCfg = require('../../config/botCfg');
 
 module.exports = function (db) {
-    console.log(botCfg.requestOptionsWeather);
     function poll(lastUpdateId) {
         let requestUrl = createRequestUrlTelegram(botCfg, lastUpdateId);
         rpn(requestUrl)
@@ -13,9 +12,9 @@ module.exports = function (db) {
                 if (!updateObj.result.length) {
                     poll(lastUpdateId);
                 } else {
-                    processIncomingMessage(updateObj.result[0].message, db, botCfg);
                     let nextUpdateId = updateObj.result[0].update_id + 1;
                     poll(nextUpdateId);
+                    processMessages(updateObj.result[0].message, db, botCfg);
                 }
             })
             .catch(err => console.log);
@@ -23,33 +22,73 @@ module.exports = function (db) {
     poll(0);
 };
 
-function createRequestUrlTelegram(botCfg, offset) {
-    let output = `${botCfg.BOT_ENDPOINT}${botCfg.BOT_API_KEY}/getUpdates?offset=${offset}`;
-    for (var key in botCfg.requestOptionsTelegram) {
-        output += `&${key}=${botCfg.requestOptionsTelegram[key]}`
-    }
-    return output;
-}
-
-function processIncomingMessage(message, db, botCfg) {
-    saveIncomingMessageToDb(message, db);
-
-    findWeatherForIncomingMessage(message, botCfg)
-        .then(responseJson => {
-            let responsObj = JSON.parse(responseJson);
-            console.log(responsObj);
-        })
+function processMessages(message, db, botCfg) {
+    saveIncomingMessageToDb(message, db)
+        .then(() => findWeatherForIncomingMessage(message, botCfg))
+        .then(responseJson => JSON.parse(responseJson))
+        .then(responseObj => createOutcomingMessage(responseObj, message))
+        .then(outcomingMessage => sendOutcomingMessage(outcomingMessage, botCfg))
+        .then(resultJson => JSON.parse(resultJson))
+        .then(resultObj => saveOutcomingMessageToDb(resultObj, db))
         .catch(err => console.log);
 }
 
-function saveIncomingMessageToDb(message, db) {
-    db.collection('messages').insert(message, (err, result) => {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log(result);
+function saveOutcomingMessageToDb(outcomingMessage, db) {
+    console.log(outcomingMessage);
+    return new Promise((resolve, reject) => {
+        db.collection('responses').insert(outcomingMessage, (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve('Saved to DB:', result);
+            }
+        });
+    })
+}
+
+function sendOutcomingMessage(outcomingMessage, botCfg) {
+    let responseUrlTelegram = createResponseUrlTelegram(outcomingMessage, botCfg);
+    return rpn(responseUrlTelegram);
+}
+
+function createOutcomingMessage(weatherResponse, incomingMessage) {
+    return new Promise((resolve, reject) => {
+        let outcomingMessage = {
+            text: createOutcomingMessageText(weatherResponse),
+            chat_id: incomingMessage.chat.id
         }
-    });
+        if (outcomingMessage) {
+            resolve(outcomingMessage);
+        } else {
+            reject(new Error('SOmething went wrong in createOutcomingMessage()'))
+        }
+    })
+}
+
+function createOutcomingMessageText(weatherResponse) {
+    let text;
+    if (!weatherResponse.count) {
+        text = 'Requested city don`t found'
+    } else {
+        text = `${weatherResponse.list[0].name} weather forecast for now:`
+        for (key in weatherResponse.list[0].main) {
+            text += `\n${key}:${weatherResponse.list[0].main[key]}`
+        }
+        text += `\n${weatherResponse.list[0].weather[0].description}`;
+    }
+    return text
+}
+
+function saveIncomingMessageToDb(message, db) {
+    return new Promise((resolve, reject) => {
+        db.collection('messages').insert(message, (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve('Saved to DB:', result);
+            }
+        });
+    })
 }
 
 function findWeatherForIncomingMessage(message, botCfg) {
@@ -62,10 +101,26 @@ function findWeatherForIncomingMessage(message, botCfg) {
     })
 }
 
+function createRequestUrlTelegram(botCfg, offset) {
+    let output = `${botCfg.BOT_ENDPOINT}${botCfg.BOT_API_KEY}/getUpdates?offset=${offset}`;
+    for (var key in botCfg.requestOptionsTelegram) {
+        output += `&${key}=${botCfg.requestOptionsTelegram[key]}`
+    }
+    return output;
+}
+
 function createRequestUrlWeather(requestedCity, botCfg) {
     let output = `${botCfg.WEATHER_ENDPOINT}${requestedCity}`;
     for (var key in botCfg.requestOptionsWeather) {
         output += `&${key}=${botCfg.requestOptionsWeather[key]}`
+    }
+    return encodeURI(output);
+}
+
+function createResponseUrlTelegram(outcomingMessage, botCfg) {
+    let output = `${botCfg.BOT_ENDPOINT}${botCfg.BOT_API_KEY}/sendMessage?`;
+    for (var key in outcomingMessage) {
+        output += `${key}=${outcomingMessage[key]}&`
     }
     return encodeURI(output);
 }

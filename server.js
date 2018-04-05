@@ -12,8 +12,8 @@ app.use(bodyParser.json());
 
 MongoClient.connect(dbCfg.URL, (err, database) => {
   if (err) return console.log(err)
-  require('./app/routes')(app, database);
-  require('./app/botService')(database);
+  require('./server/routes')(app, database);
+  require('./server/botService')(database);
   
   app.listen(port, () => {
     console.log('We are live on ' + port);

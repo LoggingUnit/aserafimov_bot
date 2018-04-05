@@ -3,6 +3,6 @@ const express = require('express');
 
 module.exports = function (app, db) {
 
-  app.use(express.static('static'));  
-  
+  app.use(express.static('client/build'));
+
 };

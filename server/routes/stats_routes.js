@@ -4,11 +4,32 @@ var ObjectID = require('mongodb').ObjectID;
 module.exports = function (app, db) {
 
   app.get('/getAll', getAllController);
+  app.get('/getPopularRequest', getPopularRequestController);
 
   function getAllController(req, res) {
     console.log(`stats_routes.js getAllController ${req.method} to ${req.originalUrl}`);
     const details = {};
     db.collection('messages').find(details, {}).toArray()
+      .then((data) => {
+        res.send(data);
+      })
+  }
+
+  function getPopularRequestController(req, res) {
+    console.log(`stats_routes.js getPopularRequestController ${req.method} to ${req.originalUrl}`);
+    const pipeline = [{
+      "$group": {
+        "_id": {
+          "text": "$text"
+        },
+        "count": {
+          "$sum": 1
+        }
+      }
+    }, {
+      "$sort": { "count": -1 }
+    }];
+    db.collection('messages').aggregate(pipeline).toArray()
       .then((data) => {
         res.send(data);
       })

@@ -7,7 +7,7 @@ export default function IncomingMessagesTable({ messages }) {
         <IncomingMessagesSingleRow message={message} key={message._id} />
     )
     return (
-        <table className ='incomingMessagesTable'>
+        <table className ='table'>
             <tr>
                 <th>
                     User

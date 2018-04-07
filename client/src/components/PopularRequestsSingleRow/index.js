@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import './style.css'
 
-class IncomingMessagesSingleRow extends Component {
+class PopularRequestsSingleRow extends Component {
 
     constructor(props) {
         super(props)
@@ -14,21 +14,18 @@ class IncomingMessagesSingleRow extends Component {
     }
 
     render() {
-        const { message } = this.props;
+        const { request } = this.props;
         return (
             <tr>
                 <td>
-                    {message.chat.first_name}
+                    {request._id.text}
                 </td>
                 <td>
-                    {message.text}
-                </td>
-                <td>
-                    {(new Date(message.date*1000)).toString()}
+                    {request.count}
                 </td>
             </tr>
         )
     }
 }
 
-export default IncomingMessagesSingleRow
+export default PopularRequestsSingleRow

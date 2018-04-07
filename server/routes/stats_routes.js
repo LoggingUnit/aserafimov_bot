@@ -4,7 +4,7 @@ var ObjectID = require('mongodb').ObjectID;
 module.exports = function (app, db) {
 
   app.get('/getAll', getAllController);
-  app.get('/getPopularRequest', getPopularRequestController);
+  app.get('/getPopularRequests', getPopularRequestsController);
 
   function getAllController(req, res) {
     console.log(`stats_routes.js getAllController ${req.method} to ${req.originalUrl}`);
@@ -15,8 +15,8 @@ module.exports = function (app, db) {
       })
   }
 
-  function getPopularRequestController(req, res) {
-    console.log(`stats_routes.js getPopularRequestController ${req.method} to ${req.originalUrl}`);
+  function getPopularRequestsController(req, res) {
+    console.log(`stats_routes.js getPopularRequestsController ${req.method} to ${req.originalUrl}`);
     const pipeline = [{
       "$group": {
         "_id": {

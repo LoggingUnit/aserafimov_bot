@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import ArticleList from '../ArticleList'
 import IncomingMessagesTable from '../IncomingMessagesTable'
 import PopularRequestsTable from '../PopularRequestsTable'
+import ButtonsPanel from '../ButtonsPanel'
 import articles from '../../fixtures'
 import 'bootstrap/dist/css/bootstrap.css'
 import './style.css'
@@ -13,20 +14,8 @@ class App extends Component {
     }
 
     componentDidMount() {
-        fetch('/getAll')
-            .then(response => response.json())
-            .then(result => {
-                this.setState({
-                    messages: result,
-                })
-            })
-            .catch(error => {
-                this.setState({
-                    messages: [],
-                })
-            })
 
-        fetch('/getPopularRequests')
+        fetch('/getRequestsPopular')
             .then(response => response.json())
             .then(result => {
                 this.setState({
@@ -45,15 +34,12 @@ class App extends Component {
         const { messages, requests } = this.state;
         return (
             <div className='container'>
-                <div className='jumbotron'>
+                <div className='row'>
                     <h1 className='display-4'>
-                        <div className='row'>
-                            Bot`s admin page
-                        </div>
-                        {/* <button className='btn' onClick={this.revert}>Revert</button> */}
+                        Bot`s admin page
                     </h1>
                 </div>
-                {/* <ArticleList articles={this.state.reverted ? articles.reverse() : articles} /> */}
+                <ButtonsPanel handleClick={this.setMessageAsPerInterval} />
                 <div className='row'>
                     <div className="col-sm-8">
                         <div className="table-responsive table-height">
@@ -69,10 +55,7 @@ class App extends Component {
             </div>
         )
     }
-
-    revert = () => this.setState({
-        reverted: !this.state.reverted
-    })
+    setMessageAsPerInterval = (messages) => this.setState({ messages })
 }
 
 export default App

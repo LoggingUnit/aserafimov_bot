@@ -3,20 +3,35 @@ var ObjectID = require('mongodb').ObjectID;
 
 module.exports = function (app, db) {
 
-  app.get('/getAll', getAllController);
-  app.get('/getPopularRequests', getPopularRequestsController);
+  app.get('/getRequestsByInterval/:interval', getRequestsByIntervalController);
+  app.get('/getRequestsPopular', getRequestsPopularController);
 
-  function getAllController(req, res) {
-    console.log(`stats_routes.js getAllController ${req.method} to ${req.originalUrl}`);
-    const details = {};
-    db.collection('messages').find(details, {}).toArray()
+  function getRequestsByIntervalController(req, res) {
+    console.log(`stats_routes.js getRequestsByInterval ${req.method} to ${req.originalUrl}`);
+    const details = {
+      $query: {
+        date: { $gt: calculateCutOffUnixTime(req.params.interval) }
+      },
+    }
+    db.collection('messages').find(details).sort({ date: -1 }).toArray()
       .then((data) => {
+        console.log(data);
         res.send(data);
       })
   }
 
-  function getPopularRequestsController(req, res) {
-    console.log(`stats_routes.js getPopularRequestsController ${req.method} to ${req.originalUrl}`);
+  //interval in days (24 hrs)
+  function calculateCutOffUnixTime(interval) {
+    if (interval === 'undefined') {
+      return 0;
+    } else {
+      let currentTime = Date.now()/1000;
+      return currentTime - (interval*24*3600)
+    }
+  }
+
+  function getRequestsPopularController(req, res) {
+    console.log(`stats_routes.js getRequestsPopularController ${req.method} to ${req.originalUrl}`);
     const pipeline = [{
       "$group": {
         "_id": {

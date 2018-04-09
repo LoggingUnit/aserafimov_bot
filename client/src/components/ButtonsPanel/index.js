@@ -1,13 +1,24 @@
 import React, { Component } from 'react'
 import './style.css'
 
+/**
+ * Buttons page component 
+ */
 class ButtonsPanel extends Component {
+
+    /**
+     * Constructor recieves handleClick function from parent component to provide ability to 
+     * render different sets of messages by button click
+     */
     constructor(props) {
         super(props)
         const { handleClick } = this.props;
     }
 
-    componentDidMount () {
+    /**
+     * As soon as component mounted buttonClicked method emitted to get messages and render components
+     */
+    componentDidMount() {
         this.buttonClicked();
     }
 
@@ -50,7 +61,12 @@ class ButtonsPanel extends Component {
         )
     }
 
-    buttonClicked (arg) {
+    /**
+     * Method performs GET request to server and in case of success calls handleClick callback
+     * to set received data to parent component
+     * @param {string} arg number of last days to display data within
+     */
+    buttonClicked(arg) {
         console.log(arg);
         fetch(`/getRequestsByInterval/${arg}`)
             .then(response => response.json())
@@ -58,7 +74,7 @@ class ButtonsPanel extends Component {
                 this.props.handleClick(result);
             })
             .catch(error => {
-                this.props.handleClick(error);
+                console.log(error);
             })
     }
 

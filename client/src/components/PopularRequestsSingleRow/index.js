@@ -1,18 +1,15 @@
 import React, { Component } from 'react'
 import './style.css'
 
+/**
+ * Component creates a single row of popular message table
+ */
 class PopularRequestsSingleRow extends Component {
 
-    constructor(props) {
-        super(props)
-        this.state = {
-            isOpen: props.defaultOpen
-        }
-    }
-
-    componentWillReceiveProps(nextProps) {
-    }
-
+    /**
+     * Render recieves single request as props from parent component to provide ability to 
+     * crate single row with appropriate data
+     */
     render() {
         const { request } = this.props;
         return (

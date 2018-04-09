@@ -2,6 +2,10 @@ import React from 'react'
 import IncomingMessagesSingleRow from '../IncomingMessagesSingleRow'
 import './style.css'
 
+/**
+ * Component builds incoming message table according to received data
+ * @param {Object[]} param0 array of messages to display 
+ */
 export default function IncomingMessagesTable({ messages }) {
     const rowElements = messages.map((message, index) =>
         <IncomingMessagesSingleRow message={message} key={message._id} />

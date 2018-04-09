@@ -1,4 +1,8 @@
-// stats_routes.js
+/**
+ * stats_routes.js
+ * Serves statistics request routing 
+ */
+
 var ObjectID = require('mongodb').ObjectID;
 
 module.exports = function (app, db) {
@@ -6,6 +10,14 @@ module.exports = function (app, db) {
   app.get('/getRequestsByInterval/:interval', getRequestsByIntervalController);
   app.get('/getRequestsPopular', getRequestsPopularController);
 
+  /**
+   * Controller to work with GET requests by "/getRequestsByInterval/" url
+   * Receives cut-off parameter "interval" from client side as part of request url
+   * Makes requests to db with interval as cut-off after interval transformed into Unix time
+   * to get messages what received only within interval selected by user
+   * Responses with messages received by db within cut-off interval, if interval undefined 
+   * all messages will be sent to client
+   */
   function getRequestsByIntervalController(req, res) {
     console.log(`stats_routes.js getRequestsByInterval ${req.method} to ${req.originalUrl}`);
     const details = {
@@ -19,16 +31,30 @@ module.exports = function (app, db) {
       })
   }
 
-  //interval in days (24 hrs)
+  /**
+   * Method to calculate cut-off date in Unix time format according to received interval
+   * In case of 'undefined' interval returns 0 as cut-off date
+   * @param {string} interval number of days since now to include to into cut-off interval
+   * @return {number} cut-off date in Unix time format
+   */
   function calculateCutOffUnixTime(interval) {
     if (interval === 'undefined') {
       return 0;
     } else {
-      let currentTime = Date.now()/1000;
-      return currentTime - (interval*24*3600)
+      //Get current time in milliseconds and transform it into seconds
+      let currentTime = Date.now() / 1000;
+      //24 - hours per day, 3600 - seconds per hour
+      return currentTime - (interval * 24 * 3600)
     }
   }
 
+  /**
+   * Controller to work with GET requests by "/getRequestsPopular" url
+   * Makes requests to db to group messages by text field, calculate total count for each field
+   * and sort by descending order
+   * Responses to client with array of objects consisted of value of text field and count 
+   * of messages with such value sorted descendingly as soon as response from db received
+   */
   function getRequestsPopularController(req, res) {
     console.log(`stats_routes.js getRequestsPopularController ${req.method} to ${req.originalUrl}`);
     const pipeline = [{
@@ -48,64 +74,4 @@ module.exports = function (app, db) {
         res.send(data);
       })
   }
-
-
-  // function userDeleteController(req, res) {
-  //   const user = req.params.user;
-  //   console.log(user);
-  //   const details = { 'user': user };
-  //   db.collection('users').remove(details, (err, item) => {
-  //     if (err) {
-  //       res.send({ 'error': 'An error has occurred' });
-  //     } else {
-  //       res.send('User ' + user + ' deleted!');
-  //     }
-  //   });
-  // };
-
-  // function userPutController(req, res) {
-  //   const user = req.params.user;
-  //   const details = { 'user': user };
-  //   const note = { text: req.body.body, title: req.body.title };
-  //   db.collection('users').update(details, note, (err, result) => {
-  //     if (err) {
-  //       res.send({ 'error': 'An error has occurred' });
-  //     } else {
-  //       res.send(note);
-  //     }
-  //   });
-  // };
-
-  // function findSessionByToken(token) {
-  //   return new Promise((resolve, reject) => {
-  //     const details = { '_id': new ObjectID(token) };
-  //     db.collection('sessions').findOne(details, (err, item) => {
-  //       if (err) {
-  //         reject({ 'error': 'An error has occurred' });
-  //       } else {
-  //         if (!item) {
-  //           reject({ 'error': 'No session found' });
-  //         }
-  //         resolve(item);
-  //       }
-  //     })
-  //   })
-  // }
-
-  // function findUserByUserName(userName) {
-  //   return new Promise((resolve, reject) => {
-  //     const details = { 'userName': userName };
-
-  //     db.collection('users').findOne(details, (err, item) => {
-  //       if (err) {
-  //         reject({ 'error': 'An error has occurred' });
-  //       } else {
-  //         if (!item) {
-  //           reject({ 'error': 'No user found' });
-  //         }
-  //         resolve(item);
-  //       }
-  //     })
-  //   })
-  // }
 };

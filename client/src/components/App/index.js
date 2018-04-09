@@ -1,9 +1,7 @@
 import React, { Component } from 'react'
-import ArticleList from '../ArticleList'
 import IncomingMessagesTable from '../IncomingMessagesTable'
 import PopularRequestsTable from '../PopularRequestsTable'
 import ButtonsPanel from '../ButtonsPanel'
-import articles from '../../fixtures'
 import 'bootstrap/dist/css/bootstrap.css'
 import './style.css'
 
@@ -40,16 +38,12 @@ class App extends Component {
                     </h1>
                 </div>
                 <ButtonsPanel handleClick={this.setMessageAsPerInterval} />
-                <div className='row'>
+                <div className='row mt-4'>
                     <div className="col-sm-8">
-                        <div className="table-responsive table-height">
-                            <IncomingMessagesTable messages={messages} />
-                        </div>
+                        <IncomingMessagesTable messages={messages} />
                     </div>
                     <div className="col-sm-4">
-                        <div className="table-responsive table-height">
-                            <PopularRequestsTable requests={requests} />
-                        </div>
+                        <PopularRequestsTable requests={requests} />
                     </div>
                 </div>
             </div>

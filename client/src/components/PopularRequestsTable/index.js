@@ -7,16 +7,23 @@ export default function PopularRequestsTable({ requests }) {
         <PopularRequestsSingleRow request={request} key={request._id.text} />
     )
     return (
-        <table className = 'table'>
-            <tr>
-                <th>
-                    Request
+        <div>
+            <h4>
+                Top requests:
+            </h4>
+            <div className="table-responsive table-height">
+                <table className='table'>
+                    <tr>
+                        <th>
+                            Request
                 </th>
-                <th>
-                    Count
+                        <th>
+                            Count
                 </th>
-            </tr>
-            {rowElements}
-        </table>
+                    </tr>
+                    {rowElements}
+                </table>
+            </div>
+        </div>
     )
 }

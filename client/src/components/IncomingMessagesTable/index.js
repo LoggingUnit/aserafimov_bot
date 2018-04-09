@@ -7,19 +7,26 @@ export default function IncomingMessagesTable({ messages }) {
         <IncomingMessagesSingleRow message={message} key={message._id} />
     )
     return (
-        <table className ='table'>
-            <tr>
-                <th>
-                    User
-                </th>
-                <th>
-                    Request
-                </th>
-                <th>
-                    Date
-                </th>
-            </tr>
-            {rowElements}
-        </table>
+        <div>
+            <h4>
+                Incoming messages log:
+            </h4>
+            <div className="table-responsive table-height">
+                <table className='table'>
+                    <tr>
+                        <th>
+                            User
+                        </th>
+                        <th>
+                            Request
+                        </th>
+                        <th>
+                            Date
+                        </th>
+                    </tr>
+                    {rowElements}
+                </table>
+            </div>
+        </div>
     )
 }

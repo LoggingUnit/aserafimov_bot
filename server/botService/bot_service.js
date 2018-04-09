@@ -53,9 +53,16 @@ function sendOutcomingMessage(outcomingMessage, botCfg) {
 
 function createOutcomingMessage(weatherResponse, incomingMessage) {
     return new Promise((resolve, reject) => {
-        let outcomingMessage = {
-            text: createOutcomingMessageText(weatherResponse),
-            chat_id: incomingMessage.chat.id
+        if (incomingMessage.text.search("/") !== -1) {
+            let outcomingMessage = {
+                text: createOutcomingMessageText(),
+                chat_id: incomingMessage.chat.id
+            }
+        } else {
+            let outcomingMessage = {
+                text: createOutcomingMessageText(weatherResponse),
+                chat_id: incomingMessage.chat.id
+            }
         }
         if (outcomingMessage) {
             resolve(outcomingMessage);
@@ -67,15 +74,21 @@ function createOutcomingMessage(weatherResponse, incomingMessage) {
 
 function createOutcomingMessageText(weatherResponse) {
     let text;
-    if (!weatherResponse.count) {
-        text = 'Requested city don`t found'
-    } else {
-        text = `${weatherResponse.list[0].name} weather forecast for now:`
-        for (key in weatherResponse.list[0].main) {
-            text += `\n${key}:${weatherResponse.list[0].main[key]}`
+    if (weatherResponse) {
+        if (!weatherResponse.count) {
+            text = 'Requested city don`t found'
+        } else {
+            text = `${weatherResponse.list[0].name} weather forecast for now:`
+            for (key in weatherResponse.list[0].main) {
+                text += `\n${key}:${weatherResponse.list[0].main[key]}`
+            }
+            text += `\n${weatherResponse.list[0].weather[0].description}`;
         }
-        text += `\n${weatherResponse.list[0].weather[0].description}`;
+    } else {
+        text = `Hello, i am weather bot. I dont support any commands by now.
+        Just type city name to know the wheather forecast. Have a nice day.`
     }
+
     return text
 }
 

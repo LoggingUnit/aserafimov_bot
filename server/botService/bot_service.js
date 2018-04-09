@@ -53,13 +53,14 @@ function sendOutcomingMessage(outcomingMessage, botCfg) {
 
 function createOutcomingMessage(weatherResponse, incomingMessage) {
     return new Promise((resolve, reject) => {
+        let outcomingMessage;
         if (incomingMessage.text.search("/") !== -1) {
-            let outcomingMessage = {
+            outcomingMessage = {
                 text: createOutcomingMessageText(),
                 chat_id: incomingMessage.chat.id
             }
         } else {
-            let outcomingMessage = {
+            outcomingMessage = {
                 text: createOutcomingMessageText(weatherResponse),
                 chat_id: incomingMessage.chat.id
             }
@@ -67,7 +68,7 @@ function createOutcomingMessage(weatherResponse, incomingMessage) {
         if (outcomingMessage) {
             resolve(outcomingMessage);
         } else {
-            reject(new Error('SOmething went wrong in createOutcomingMessage()'))
+            reject(new Error('Something went wrong in createOutcomingMessage()'))
         }
     })
 }
@@ -76,7 +77,7 @@ function createOutcomingMessageText(weatherResponse) {
     let text;
     if (weatherResponse) {
         if (!weatherResponse.count) {
-            text = 'Requested city don`t found'
+            text = 'Requested city dont found'
         } else {
             text = `${weatherResponse.list[0].name} weather forecast for now:`
             for (key in weatherResponse.list[0].main) {
@@ -86,7 +87,7 @@ function createOutcomingMessageText(weatherResponse) {
         }
     } else {
         text = `Hello, i am weather bot. I dont support any commands by now.
-        Just type city name to know the wheather forecast. Have a nice day.`
+Just type city name to know the wheather forecast. Have a nice day.`
     }
 
     return text

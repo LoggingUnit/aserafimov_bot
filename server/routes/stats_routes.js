@@ -15,7 +15,6 @@ module.exports = function (app, db) {
     }
     db.collection('messages').find(details).sort({ date: -1 }).toArray()
       .then((data) => {
-        console.log(data);
         res.send(data);
       })
   }
